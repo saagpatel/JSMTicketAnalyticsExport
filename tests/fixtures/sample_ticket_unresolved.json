@@ -1,0 +1,31 @@
+{
+	"id": "10500",
+	"self": "https://servicedesk.inside-box.net/rest/api/3/issue/10500",
+	"key": "IT-5000",
+	"fields": {
+		"summary": "VPN connectivity issues — remote staff",
+		"issuetype": {
+			"name": "Incident",
+			"id": "10003"
+		},
+		"priority": {
+			"name": "High",
+			"id": "2"
+		},
+		"labels": [],
+		"components": [],
+		"status": {
+			"name": "In Progress",
+			"id": "10001"
+		},
+		"resolution": null,
+		"assignee": null,
+		"reporter": {
+			"displayName": "Morgan Lee",
+			"emailAddress": "morgan.lee@inside-box.net"
+		},
+		"created": "2026-02-15T11:30:00.000+0000",
+		"updated": "2026-02-16T08:22:11.000+0000",
+		"resolutiondate": null
+	}
+}
