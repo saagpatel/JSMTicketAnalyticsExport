@@ -1,0 +1,43 @@
+{
+	"id": "10421",
+	"self": "https://servicedesk.inside-box.net/rest/api/3/issue/10421",
+	"key": "IT-4821",
+	"fields": {
+		"summary": "Laptop replacement request — Finance team",
+		"issuetype": {
+			"name": "Service Request",
+			"id": "10001"
+		},
+		"priority": {
+			"name": "Medium",
+			"id": "3"
+		},
+		"labels": ["hardware", "finance"],
+		"components": [{ "name": "Endpoints" }, { "name": "Procurement" }],
+		"status": {
+			"name": "Done",
+			"id": "10002"
+		},
+		"resolution": {
+			"name": "Done",
+			"id": "10000"
+		},
+		"assignee": {
+			"displayName": "Alex Rivera",
+			"emailAddress": "alex.rivera@inside-box.net"
+		},
+		"reporter": {
+			"displayName": "Jordan Chen",
+			"emailAddress": "jordan.chen@inside-box.net"
+		},
+		"created": "2026-02-03T09:14:22.000+0000",
+		"updated": "2026-02-10T16:45:33.000+0000",
+		"resolutiondate": "2026-02-10T16:45:33.000+0000",
+		"customfield_10102": {
+			"value": "Finance"
+		},
+		"customfield_10113": {
+			"displayName": "Sam Patel"
+		}
+	}
+}

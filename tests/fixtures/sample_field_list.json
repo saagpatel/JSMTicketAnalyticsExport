@@ -1,0 +1,50 @@
+[
+	{ "id": "summary", "name": "Summary", "schema": { "type": "string" } },
+	{
+		"id": "issuetype",
+		"name": "Issue Type",
+		"schema": { "type": "issuetype" }
+	},
+	{ "id": "priority", "name": "Priority", "schema": { "type": "priority" } },
+	{ "id": "status", "name": "Status", "schema": { "type": "status" } },
+	{ "id": "assignee", "name": "Assignee", "schema": { "type": "user" } },
+	{ "id": "reporter", "name": "Reporter", "schema": { "type": "user" } },
+	{
+		"id": "labels",
+		"name": "Labels",
+		"schema": { "type": "array", "items": "string" }
+	},
+	{
+		"id": "components",
+		"name": "Components",
+		"schema": { "type": "array", "items": "component" }
+	},
+	{
+		"id": "resolution",
+		"name": "Resolution",
+		"schema": { "type": "resolution" }
+	},
+	{ "id": "created", "name": "Created", "schema": { "type": "datetime" } },
+	{ "id": "updated", "name": "Updated", "schema": { "type": "datetime" } },
+	{
+		"id": "resolutiondate",
+		"name": "Resolved",
+		"schema": { "type": "datetime" }
+	},
+	{
+		"id": "customfield_10102",
+		"name": "Division",
+		"schema": {
+			"type": "option",
+			"custom": "com.atlassian.jira.plugin.system.customfieldtypes:select"
+		}
+	},
+	{
+		"id": "customfield_10113",
+		"name": "Manager",
+		"schema": {
+			"type": "user",
+			"custom": "com.atlassian.jira.plugin.system.customfieldtypes:userpicker"
+		}
+	}
+]
