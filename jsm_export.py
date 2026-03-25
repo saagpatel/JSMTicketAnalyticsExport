@@ -12,6 +12,7 @@ Usage::
 """
 
 import argparse
+import collections
 import dataclasses
 import logging
 import sys
@@ -23,7 +24,7 @@ import config
 from all_time_appender import append_to_all_time
 from field_resolver import resolve_fields
 from jira_client import JiraAPIError, get_all_issues, validate_auth
-from models import ExportManifest
+from models import ExportManifest, TicketRow
 from transformer import transform
 from writer import write_csv, write_json, write_manifest
 
@@ -139,6 +140,97 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _month_from_date(iso_date: str) -> str:
+    """Extract ``YYYY-MM`` from an ISO 8601 date string."""
+    return iso_date[:7] if len(iso_date) >= 7 else "unknown"
+
+
+def _write_month(
+    rows: list[TicketRow],
+    label: str,
+    errors: list[str],
+    jql: str,
+    field_mapping: dict,
+    output_dir: Path,
+    start_time: float,
+) -> None:
+    """Write a single month's CSV, JSON, and manifest."""
+    csv_path = write_csv(rows, output_dir / f"{label}.csv")
+    json_path = write_json(rows, output_dir / f"{label}.json")
+
+    duration = time.monotonic() - start_time
+    manifest = ExportManifest(
+        run_date=datetime.now(tz=timezone.utc).isoformat(),
+        date_range_start=rows[0].created_date if rows else "",
+        date_range_end=rows[-1].created_date if rows else "",
+        row_count=len(rows),
+        jql_query=jql,
+        fields_exported=[f.name for f in dataclasses.fields(rows[0])] if rows else [],
+        custom_fields_resolved={
+            m.field_name: m.field_id for m in field_mapping.values()
+        },
+        output_files=[str(csv_path), str(json_path)],
+        errors=errors,
+        duration_seconds=round(duration, 2),
+    )
+    manifest_path = write_manifest(manifest, output_dir / f"{label}-manifest.json")
+    manifest.output_files.append(str(manifest_path))
+
+    log.info(
+        "Export complete: %d tickets, %d errors, %.1fs elapsed. Files: %s",
+        len(rows),
+        len(errors),
+        duration,
+        ", ".join(manifest.output_files),
+    )
+
+
+def _write_backfill(
+    rows: list[TicketRow],
+    errors: list[str],
+    jql: str,
+    field_mapping: dict,
+    output_dir: Path,
+    start_time: float,
+) -> None:
+    """Split rows by calendar month and write per-month CSV/JSON/manifest."""
+    by_month: dict[str, list[TicketRow]] = collections.defaultdict(list)
+    for row in rows:
+        by_month[_month_from_date(row.created_date)].append(row)
+
+    months = sorted(by_month.keys())
+    log.info("Backfill: %d tickets across %d months (%s → %s)",
+             len(rows), len(months), months[0] if months else "?", months[-1] if months else "?")
+
+    for month_label in months:
+        month_rows = by_month[month_label]
+        csv_path = write_csv(month_rows, output_dir / f"{month_label}.csv")
+        json_path = write_json(month_rows, output_dir / f"{month_label}.json")
+
+        manifest = ExportManifest(
+            run_date=datetime.now(tz=timezone.utc).isoformat(),
+            date_range_start=month_rows[0].created_date,
+            date_range_end=month_rows[-1].created_date,
+            row_count=len(month_rows),
+            jql_query=jql,
+            fields_exported=[f.name for f in dataclasses.fields(month_rows[0])],
+            custom_fields_resolved={
+                m.field_name: m.field_id for m in field_mapping.values()
+            },
+            output_files=[str(csv_path), str(json_path)],
+            errors=[],
+            duration_seconds=0.0,
+        )
+        write_manifest(manifest, output_dir / f"{month_label}-manifest.json")
+        log.info("  %s: %d tickets", month_label, len(month_rows))
+
+    duration = time.monotonic() - start_time
+    log.info(
+        "Backfill complete: %d tickets, %d months, %d errors, %.1fs elapsed.",
+        len(rows), len(months), len(errors), duration,
+    )
+
+
 def main(argv: list[str] | None = None) -> None:
     """Run the JSM ticket export pipeline."""
     args = _parse_args(argv)
@@ -204,43 +296,14 @@ def main(argv: list[str] | None = None) -> None:
 
     # -- Write output ---------------------------------------------------------
     output_dir = config.OUTPUT_DIR
-    csv_path = write_csv(rows, output_dir / f"{label}.csv")
-    json_path = write_json(rows, output_dir / f"{label}.json")
 
-    # -- Manifest -------------------------------------------------------------
-    duration = time.monotonic() - start_time
-    date_range_start = rows[0].created_date if rows else ""
-    date_range_end = rows[-1].created_date if rows else ""
+    if args.backfill:
+        _write_backfill(rows, errors, jql, field_mapping, output_dir, start_time)
+    else:
+        _write_month(rows, label, errors, jql, field_mapping, output_dir, start_time)
 
-    manifest = ExportManifest(
-        run_date=datetime.now(tz=timezone.utc).isoformat(),
-        date_range_start=date_range_start,
-        date_range_end=date_range_end,
-        row_count=len(rows),
-        jql_query=jql,
-        fields_exported=[f.name for f in dataclasses.fields(rows[0])] if rows else [],
-        custom_fields_resolved={
-            m.field_name: m.field_id for m in field_mapping.values()
-        },
-        output_files=[str(csv_path), str(json_path)],
-        errors=errors,
-        duration_seconds=round(duration, 2),
-    )
-    manifest_path = write_manifest(manifest, output_dir / f"{label}-manifest.json")
-    manifest.output_files.append(str(manifest_path))
-
-    # -- All-time append (Phase 0: no-op) -------------------------------------
+    # -- All-time append ------------------------------------------------------
     append_to_all_time(rows, output_dir / "all-time.json")
-
-    # -- Summary --------------------------------------------------------------
-    log.info(
-        "Export complete: %d tickets, %d errors, %.1fs elapsed. "
-        "Files: %s",
-        len(rows),
-        len(errors),
-        duration,
-        ", ".join(manifest.output_files),
-    )
 
 
 if __name__ == "__main__":
