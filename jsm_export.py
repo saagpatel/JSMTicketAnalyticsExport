@@ -168,8 +168,8 @@ def main(argv: list[str] | None = None) -> None:
 
     log.info("Authenticated as: %s", display_name)
 
-    # -- Field resolution (Phase 0: empty) ------------------------------------
-    field_mapping = resolve_fields([])
+    # -- Field resolution -------------------------------------------------
+    field_mapping = resolve_fields(["Division", "Manager", "Time to resolution"])
     extra_field_ids = [m.field_id for m in field_mapping.values()]
     all_fields = _STANDARD_FIELDS + extra_field_ids
 

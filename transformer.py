@@ -64,6 +64,31 @@ def _compute_resolution_days(created: str, resolved: str | None) -> float | None
     return delta.total_seconds() / 86400.0
 
 
+def _extract_sla(raw_value: Any, issue_key: str) -> tuple[bool | None, int | None]:
+    """Extract SLA breach status and resolution time from a Jira SLA field.
+
+    Expected shape::
+
+        {"completedCycles": [{"breached": false, "elapsedTime": {"millis": 172800000}}]}
+
+    Returns (sla_breached, sla_time_to_resolution_mins) or (None, None) if absent.
+    """
+    if not isinstance(raw_value, dict):
+        return None, None
+
+    cycles: list[dict] = raw_value.get("completedCycles") or []
+    if not cycles:
+        logger.debug("SLA field on %s has no completedCycles", issue_key)
+        return None, None
+
+    cycle = cycles[0]
+    breached: bool | None = cycle.get("breached")
+    millis: int | None = _safe_get(cycle, "elapsedTime", "millis")
+    minutes: int | None = int(millis / 60_000) if millis is not None else None
+
+    return breached, minutes
+
+
 def transform(raw_issue: dict, field_mapping: dict[str, FieldMapping]) -> TicketRow:
     """Transform a single element from the Jira /search issues array into a TicketRow.
 
@@ -110,6 +135,8 @@ def transform(raw_issue: dict, field_mapping: dict[str, FieldMapping]) -> Ticket
     # ---- Custom fields ----------------------------------------------------------
     division: str | None = None
     manager: str | None = None
+    sla_breached: bool | None = None
+    sla_time_to_resolution_mins: int | None = None
 
     for logical_name, mapping in field_mapping.items():
         field_id = mapping.field_id
@@ -117,6 +144,11 @@ def transform(raw_issue: dict, field_mapping: dict[str, FieldMapping]) -> Ticket
 
         if raw_value is None:
             logger.debug("Custom field %s (%s) absent on issue %s", logical_name, field_id, key)
+            continue
+
+        # SLA fields have a special shape with completedCycles
+        if logical_name.lower() == "time to resolution":
+            sla_breached, sla_time_to_resolution_mins = _extract_sla(raw_value, key)
             continue
 
         extracted: str | None = None
@@ -177,7 +209,7 @@ def transform(raw_issue: dict, field_mapping: dict[str, FieldMapping]) -> Ticket
         created_date=created_date or "",
         updated_date=updated_date or "",
         resolved_date=resolved_date,
-        # SLA — populated in Phase 1; left as None here
-        sla_breached=None,
-        sla_time_to_resolution_mins=None,
+        # SLA
+        sla_breached=sla_breached,
+        sla_time_to_resolution_mins=sla_time_to_resolution_mins,
     )

@@ -183,3 +183,44 @@ class TestResolutionTimeDaysCalculation:
         row = transform(_load("sample_ticket.json"), {})
         assert row.resolution_time_days is not None
         assert abs(row.resolution_time_days - 7.313) < 0.5
+
+
+class TestSlaExtraction:
+    """SLA fields extracted from completedCycles when field_mapping includes SLA."""
+
+    def _sla_mapping(self) -> dict[str, FieldMapping]:
+        return {
+            **_division_mapping(),
+            "time to resolution": FieldMapping(
+                field_id="customfield_10200",
+                field_name="Time to resolution",
+                field_type="sla",
+            ),
+        }
+
+    def test_sla_breached_extracted(self):
+        row = transform(_load("sample_ticket.json"), self._sla_mapping())
+        assert row.sla_breached is False
+
+    def test_sla_time_to_resolution_mins_extracted(self):
+        row = transform(_load("sample_ticket.json"), self._sla_mapping())
+        # 172800000 ms = 2880 minutes = 48 hours
+        assert row.sla_time_to_resolution_mins == 2880
+
+    def test_sla_none_without_mapping(self):
+        row = transform(_load("sample_ticket.json"), {})
+        assert row.sla_breached is None
+        assert row.sla_time_to_resolution_mins is None
+
+    def test_sla_none_with_empty_completed_cycles(self):
+        ticket = _load("sample_ticket.json")
+        ticket["fields"]["customfield_10200"] = {"completedCycles": []}
+        row = transform(ticket, self._sla_mapping())
+        assert row.sla_breached is None
+        assert row.sla_time_to_resolution_mins is None
+
+    def test_sla_none_when_field_absent(self):
+        ticket = _load("sample_ticket_unresolved.json")
+        row = transform(ticket, self._sla_mapping())
+        assert row.sla_breached is None
+        assert row.sla_time_to_resolution_mins is None

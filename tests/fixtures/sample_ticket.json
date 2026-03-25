@@ -38,6 +38,16 @@
 		},
 		"customfield_10113": {
 			"displayName": "Sam Patel"
+		},
+		"customfield_10200": {
+			"completedCycles": [
+				{
+					"breached": false,
+					"elapsedTime": {
+						"millis": 172800000
+					}
+				}
+			]
 		}
 	}
 }
