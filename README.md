@@ -1,113 +1,144 @@
+![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)
+
 # JSM Ticket Analytics Export
 
-Python CLI that exports all Jira Service Management tickets from your JSM instance via the REST API, bypassing the native 1,000-row export cap. Produces CSV + JSON datasets for IT analytics.
+A Python CLI that exports Jira Service Management tickets via the REST API, bypassing the native 1,000-row export cap. Produces per-month CSV and JSON datasets plus audit manifests — designed for recurring IT analytics pipelines.
 
-## Setup
+Credentials are stored in macOS Keychain (never in plaintext), the API client is rate-limited and retry-wrapped, and the backfill mode splits a full export into per-month files automatically.
 
-### Requirements
+---
 
-- Python 3.11+
-- macOS (uses Keychain for credential storage)
+## Screenshot
 
-### Install
+![Terminal output placeholder](docs/screenshot.png)
+
+*Example terminal output from a monthly export run.*
+
+---
+
+## Tech Stack
+
+| Layer | Choice |
+|---|---|
+| Language | Python 3.11+ |
+| HTTP | `requests` (raw REST, no PyGithub/PyJira) |
+| Credentials | `keyring` — macOS Keychain only |
+| Output formats | CSV, JSON |
+| Scheduling | macOS `launchd` (plist included) |
+
+---
+
+## Prerequisites
+
+- Python 3.11 or later
+- macOS (credential storage relies on Keychain via `keyring`)
+- A Jira Cloud instance with a project you have read access to
+- An [Atlassian API token](https://id.atlassian.com/manage-profile/security/api-tokens)
+
+---
+
+## Getting Started
+
+**1. Install dependencies**
 
 ```bash
-cd JSMTicketAnalyticsExport
 pip install -r requirements.txt
 ```
 
-### Store Credentials
+**2. Store credentials**
 
-Credentials are stored in macOS Keychain — never in plaintext files.
+Credentials are persisted to macOS Keychain — never written to disk in plaintext.
 
 ```bash
 python setup_keychain.py
 ```
 
-Enter your Atlassian email and API token when prompted. The script validates credentials against the Jira API before saving.
+Enter your Atlassian account email and API token when prompted. The script validates both against the live Jira API before saving.
 
-To generate an API token: [Atlassian API Tokens](https://id.atlassian.com/manage-profile/security/api-tokens)
-
-## Usage
-
-### Export a specific month
+**3. Run an export**
 
 ```bash
+# Export a specific month
 python jsm_export.py --month 2026-02
-```
 
-Writes to `~/Analytics/JSM/`:
-- `2026-02.csv` — flat ticket data
-- `2026-02.json` — same data as JSON
-- `2026-02-manifest.json` — audit trail (row count, JQL, duration, errors)
-
-### Export from a date forward
-
-```bash
+# Export everything from a date onward
 python jsm_export.py --since 2026-01-15
-```
 
-### Full historical backfill
-
-```bash
+# Full historical backfill (all tickets, split by month)
 python jsm_export.py --backfill
-```
 
-Fetches all tickets ever created, splits output into per-month CSV/JSON files, and builds the cumulative `all-time.json`.
-
-### Dry run (count only)
-
-```bash
+# Count tickets without writing files
 python jsm_export.py --dry-run --month 2026-02
-```
 
-Paginates and counts tickets without writing files.
-
-### Verbose logging
-
-```bash
+# Enable DEBUG logging
 python jsm_export.py --month 2026-02 --verbose
 ```
 
-## Scheduling (launchd)
+Output writes to `~/Analytics/JSM/` by default (see `config.py`).
 
-The included plist runs the export on the 1st of each month at 06:00.
+---
+
+## Output Files
+
+| File | Description |
+|---|---|
+| `YYYY-MM.csv` | Flat ticket rows for one calendar month |
+| `YYYY-MM.json` | Same rows as structured JSON |
+| `YYYY-MM-manifest.json` | Audit trail: row count, JQL used, custom field mappings, timing, any transform errors |
+| `all-time.json` | Cumulative dataset appended after every run |
+
+Each `TicketRow` includes: ticket ID, summary, URL, issue type, priority, labels, components, status, resolution, resolution time, assignee, reporter, division, manager, SLA breach flag, SLA time-to-resolution, and all key timestamps.
+
+---
+
+## Scheduling
+
+The included `com.saagar.jsm-export.plist` runs the export on the 1st of each month at 06:00 via `launchd`.
 
 ```bash
-# Create log directory
 mkdir -p ~/Analytics/JSM/logs
-
-# Install the launch agent
 cp com.saagar.jsm-export.plist ~/Library/LaunchAgents/
 launchctl load ~/Library/LaunchAgents/com.saagar.jsm-export.plist
 
-# Verify it's loaded
+# Verify
 launchctl list | grep jsm
 
-# Manual test run
-launchctl start com.saagar.jsm-export
+# Unload
+launchctl unload ~/Library/LaunchAgents/com.saagar.jsm-export.plist
 ```
 
 Logs write to `~/Analytics/JSM/logs/`.
 
-To unload: `launchctl unload ~/Library/LaunchAgents/com.saagar.jsm-export.plist`
+---
 
-## Output
+## Project Structure
 
-All files write to `~/Analytics/JSM/`. The export never writes to the project directory.
+```
+JSMTicketAnalyticsExport/
+├── jsm_export.py          # CLI entrypoint and pipeline orchestration
+├── jira_client.py         # Authenticated, rate-limited REST client
+├── field_resolver.py      # Resolves custom field names to Jira field IDs
+├── transformer.py         # Maps raw Jira issue dicts to TicketRow
+├── writer.py              # CSV, JSON, and manifest file writers
+├── all_time_appender.py   # Appends new rows to the cumulative dataset
+├── models.py              # TicketRow, ExportManifest, FieldMapping dataclasses
+├── config.py              # Non-secret configuration constants
+├── setup_keychain.py      # One-time interactive credential setup
+├── com.saagar.jsm-export.plist  # launchd schedule (monthly)
+├── requirements.txt
+└── tests/
+```
 
-| File | Description |
-|------|-------------|
-| `YYYY-MM.csv` | Flat ticket data for one month |
-| `YYYY-MM.json` | Same data as JSON |
-| `YYYY-MM-manifest.json` | Audit metadata (row count, JQL, timing) |
-| `all-time.json` | Cumulative dataset, deduplicated by ticket ID |
+---
 
 ## Configuration
 
-Non-secret config lives in `config.py`:
-- Instance URL, project key, output directory
-- Rate limit (8 req/s), retry settings
-- Keyring service name
+Non-secret constants live in `config.py`: Jira instance URL, project key, output directory, rate limit (8 req/s), retry count, and keyring service name. No environment variables required — all secrets stay in macOS Keychain.
 
-Credentials are in macOS Keychain under the `jsm-analytics` service. Re-run `setup_keychain.py` to update them.
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
