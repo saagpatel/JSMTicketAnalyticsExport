@@ -45,8 +45,7 @@ Python CLI script that exports all JSM tickets from servicedesk.inside-box.net v
 
 ## Current State
 
-**Phase 0: Foundation + Core Export**
-See IMPLEMENTATION-ROADMAP.md for full phase details.
+**Phases 0–2 complete.** Core export (Phase 0), custom field resolution + SLA extraction + all-time append (Phase 1), and launchd scheduling + backfill mode (Phase 2) are all implemented. See IMPLEMENTATION-ROADMAP.md for phase details.
 
 ## Stack
 
