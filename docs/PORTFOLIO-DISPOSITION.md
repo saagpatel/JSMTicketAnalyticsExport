@@ -21,8 +21,11 @@ Only `origin` (`saagpatel/JSMTicketAnalyticsExport`). Clean.
 
 `origin/main`:
 
-- Tip: `a93ce13` chore(deps): bump requests to 2.33.0 to fix 3 CVEs
-- Recent commits are scaffolding wave + CVE bump:
+- Tip: `230e50b` docs: lean CLAUDE.md (claude-md-lint) (#10)
+- Recent commits include scaffolding + CVE bumps + CodeQL CI:
+  - `230e50b` docs: lean CLAUDE.md
+  - `ebe83e9` ci: add CodeQL analysis
+  - `75cbe2b` docs: add portfolio disposition
   - `a93ce13` requests 2.33.0 CVE bump
   - Full OSS scaffolding (CHANGELOG, PR/issue templates, CoC,
     Makefile, Dependabot, contributing, security policy, MIT,
@@ -52,8 +55,8 @@ plaintext config); rate-limited + retry-wrapped API client.
 Backfill mode auto-splits a full export into monthly files.
 **launchd plist (`com.saagar.jsm-export.plist`) on canonical
 main** enables scheduled execution — the operator runs this on a
-cadence against their Jira instance. Per memory: Phase 0, 48
-tests. Active state because no v1 declaration and the recent
+cadence against their Jira instance. Phases 0–2 all implemented; 63 tests
+(counted from test files). Active state because no v1 declaration and the recent
 commit cadence is scaffolding + CVE bumps, not feature work.
 
 ---
@@ -166,7 +169,7 @@ memory update.
    ~/Library/LaunchAgents/ && launchctl load
    ~/Library/LaunchAgents/com.saagar.jsm-export.plist`.
 5. Verify Jira API token still valid in Keychain.
-6. Run `pytest` — expect 48 tests passing.
+6. Run `pytest` — expect 63 tests passing.
 7. Verify pagination against current Jira Cloud API (check the
    `nextPageToken` vs `startAt` semantics).
 8. Spot-check audit manifest schema against any downstream
@@ -178,7 +181,7 @@ memory update.
 
 | Field | Value |
 |---|---|
-| `origin/main` tip | `a93ce13` chore(deps): bump requests to 2.33.0 to fix 3 CVEs |
+| `origin/main` tip | `230e50b` docs: lean CLAUDE.md (claude-md-lint) (#10) |
 | Default branch | `main` |
 | Build system | Python 3.11+ + `keyring` (macOS Keychain) + `requests` + standard `requirements.txt` |
 | Distribution | **Clone + pip install + launchd plist** (not PyPI) |

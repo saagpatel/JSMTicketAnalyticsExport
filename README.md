@@ -33,11 +33,17 @@ pip install -r requirements.txt
 # Store credentials in Keychain on first run
 python setup_keychain.py
 
-# Export current month
-python jsm_export.py --project IT --output output/
+# Export previous calendar month (default)
+python jsm_export.py
 
-# Backfill all history (splits into monthly files)
-python jsm_export.py --project IT --output output/ --backfill
+# Export a specific month
+python jsm_export.py --month 2026-02
+
+# Backfill all history (splits into monthly files by year-month under ~/Analytics/JSM/)
+python jsm_export.py --backfill
+
+# Dry run — count tickets without writing files
+python jsm_export.py --dry-run --month 2026-02
 ```
 
 ## Tech Stack
