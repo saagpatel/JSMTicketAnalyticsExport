@@ -141,7 +141,7 @@ class TestTransformWithFieldMapping:
         assert self.row.division == "Finance"
 
     def test_manager_extracted(self):
-        assert self.row.manager == "Sam Patel"
+        assert self.row.manager == "Dana Kim"
 
 
 class TestTransformMissingFields:

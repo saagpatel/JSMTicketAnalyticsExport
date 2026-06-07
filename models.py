@@ -11,7 +11,7 @@ class TicketRow:
     # Identity
     ticket_id: str              # e.g. "IT-4821"
     summary: str
-    url: str                    # https://servicedesk.inside-box.net/browse/IT-4821
+    url: str                    # https://your-org.atlassian.net/browse/IT-4821
 
     # Classification
     issue_type: str             # Bug, Service Request, Incident, Task, etc.
