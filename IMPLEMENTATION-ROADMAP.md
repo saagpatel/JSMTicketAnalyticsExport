@@ -60,7 +60,7 @@ class TicketRow:
     # Identity
     ticket_id: str              # e.g. "IT-4821"
     summary: str
-    url: str                    # https://servicedesk.inside-box.net/browse/IT-4821
+    url: str                    # https://your-org.atlassian.net/browse/IT-4821
 
     # Classification
     issue_type: str             # Bug, Service Request, Incident, Task, etc.
@@ -120,9 +120,9 @@ class FieldMapping:
 
 | Endpoint | Method | Auth | Rate Limit | Purpose |
 |----------|--------|------|------------|---------|
-| `https://servicedesk.inside-box.net/rest/api/3/field` | GET | Basic (email + API token) | 10 req/s | Resolve custom field IDs by name |
-| `https://servicedesk.inside-box.net/rest/api/3/search` | GET | Basic (email + API token) | 10 req/s | Paginated JQL ticket export |
-| `https://servicedesk.inside-box.net/rest/api/3/myself` | GET | Basic (email + API token) | 10 req/s | Auth validation check on startup |
+| `https://your-org.atlassian.net/rest/api/3/field` | GET | Basic (email + API token) | 10 req/s | Resolve custom field IDs by name |
+| `https://your-org.atlassian.net/rest/api/3/search` | GET | Basic (email + API token) | 10 req/s | Paginated JQL ticket export |
+| `https://your-org.atlassian.net/rest/api/3/myself` | GET | Basic (email + API token) | 10 req/s | Auth validation check on startup |
 
 **Pagination contract for `/rest/api/3/search`:**
 ```
