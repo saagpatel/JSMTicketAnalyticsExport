@@ -1,13 +1,13 @@
 # JSM Ticket Analytics Export
 
-Python CLI that exports all JSM tickets from `servicedesk.inside-box.net` via the Jira REST API, bypassing the native 1,000-row export cap. Produces CSV + JSON datasets for IT analytics — monthly metrics, quarterly briefs, and division-level breakdowns.
+Python CLI that exports all JSM tickets from `your-org.atlassian.net` via the Jira REST API, bypassing the native 1,000-row export cap. Produces CSV + JSON datasets for IT analytics — monthly metrics, quarterly briefs, and division-level breakdowns.
 
 ## Stack
 
 - **Python**: 3.11+ · `requests` 2.31+ · stdlib `csv` + `json`
 - **Auth**: Jira REST API v3 + API token via `keyring` (macOS Keychain)
 - **Scheduling**: macOS `launchd` via `.plist` in `~/Library/LaunchAgents`
-- **Instance**: `servicedesk.inside-box.net` · Project key: `IT`
+- **Instance**: `your-org.atlassian.net` · Project key: `IT`
 
 ## Conventions
 
@@ -41,7 +41,7 @@ Python CLI that exports all JSM tickets from `servicedesk.inside-box.net` via th
 
 ## What This Project Is
 
-Python CLI script that exports all JSM tickets from servicedesk.inside-box.net via the Jira REST API, bypassing the native 1,000-row export cap. Produces canonical CSV + JSON datasets for downstream IT analytics — monthly metrics, quarterly leadership briefs, and division-level breakdowns.
+Python CLI script that exports all JSM tickets from your-org.atlassian.net via the Jira REST API, bypassing the native 1,000-row export cap. Produces canonical CSV + JSON datasets for downstream IT analytics — monthly metrics, quarterly leadership briefs, and division-level breakdowns.
 
 ## Current State
 
@@ -54,7 +54,7 @@ Python CLI script that exports all JSM tickets from servicedesk.inside-box.net v
 - **HTTP**: `requests` 2.31+
 - **Output**: stdlib `csv` + `json`
 - **Scheduling**: macOS `launchd` via `.plist` in `~/Library/LaunchAgents`
-- **Instance**: `servicedesk.inside-box.net` · Project key: `IT`
+- **Instance**: `your-org.atlassian.net` · Project key: `IT`
 
 ## How To Run
 

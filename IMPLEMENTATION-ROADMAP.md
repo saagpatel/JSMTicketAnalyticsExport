@@ -37,7 +37,7 @@ jsm-analytics-export/
 ├── config.py               # Non-secret config (instance URL, project key, output dir)
 ├── setup_keychain.py       # One-time helper: store API token in macOS Keychain
 ├── requirements.txt
-├── com.saagar.jsm-export.plist  # launchd plist template
+├── com.example.jsm-export.plist  # launchd plist template
 ├── tests/
 │   ├── test_transformer.py
 │   ├── test_field_resolver.py
@@ -60,7 +60,7 @@ class TicketRow:
     # Identity
     ticket_id: str              # e.g. "IT-4821"
     summary: str
-    url: str                    # https://servicedesk.inside-box.net/browse/IT-4821
+    url: str                    # https://your-org.atlassian.net/browse/IT-4821
 
     # Classification
     issue_type: str             # Bug, Service Request, Incident, Task, etc.
@@ -120,9 +120,9 @@ class FieldMapping:
 
 | Endpoint | Method | Auth | Rate Limit | Purpose |
 |----------|--------|------|------------|---------|
-| `https://servicedesk.inside-box.net/rest/api/3/field` | GET | Basic (email + API token) | 10 req/s | Resolve custom field IDs by name |
-| `https://servicedesk.inside-box.net/rest/api/3/search` | GET | Basic (email + API token) | 10 req/s | Paginated JQL ticket export |
-| `https://servicedesk.inside-box.net/rest/api/3/myself` | GET | Basic (email + API token) | 10 req/s | Auth validation check on startup |
+| `https://your-org.atlassian.net/rest/api/3/field` | GET | Basic (email + API token) | 10 req/s | Resolve custom field IDs by name |
+| `https://your-org.atlassian.net/rest/api/3/search` | GET | Basic (email + API token) | 10 req/s | Paginated JQL ticket export |
+| `https://your-org.atlassian.net/rest/api/3/myself` | GET | Basic (email + API token) | 10 req/s | Auth validation check on startup |
 
 **Pagination contract for `/rest/api/3/search`:**
 ```
@@ -302,8 +302,8 @@ No other third-party dependencies. All output (CSV, JSON) uses stdlib modules.
 
 **Tasks:**
 
-1. **launchd plist** — create `com.saagar.jsm-export.plist` targeting `python /path/to/jsm_export.py --month auto` on the 1st of each month at 06:00. Include `StandardOutPath` and `StandardErrorPath` pointing to `~/Analytics/JSM/logs/`.
-   - **Acceptance:** `launchctl load ~/Library/LaunchAgents/com.saagar.jsm-export.plist` → `launchctl list | grep jsm` shows entry. Verify with `launchctl start com.saagar.jsm-export` → export runs, log file written.
+1. **launchd plist** — create `com.example.jsm-export.plist` targeting `python /path/to/jsm_export.py --month auto` on the 1st of each month at 06:00. Include `StandardOutPath` and `StandardErrorPath` pointing to `~/Analytics/JSM/logs/`.
+   - **Acceptance:** `launchctl load ~/Library/LaunchAgents/com.example.jsm-export.plist` → `launchctl list | grep jsm` shows entry. Verify with `launchctl start com.example.jsm-export` → export runs, log file written.
 
 2. **`--month auto` mode** — when `--month auto` is passed (used by launchd), derive previous calendar month automatically. E.g., if today is 2026-04-01, export `2026-03`.
    - **Acceptance:** `python jsm_export.py --month auto --dry-run` on March 24 → logs "Exporting 2026-02..." (previous full month).

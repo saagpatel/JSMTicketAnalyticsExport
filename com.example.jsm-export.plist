@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  launchd template for scheduling JSM Ticket Analytics Export.
+
+  Replace every __ABSOLUTE_PATH_TO__ placeholder with a real absolute path for
+  your machine (launchd does not expand ~ or $HOME), and set the environment
+  variables below to your Jira instance + project key. See RELEASE.md.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.example.jsm-export</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__ABSOLUTE_PATH_TO__/jsm-export</string>
+        <string>--month</string>
+        <string>auto</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>JSM_JIRA_INSTANCE</key>
+        <string>https://your-org.atlassian.net</string>
+        <key>JSM_PROJECT_KEY</key>
+        <string>SUPPORT</string>
+    </dict>
+
+    <!-- Run on the 1st of every month at 06:00 -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Day</key><integer>1</integer>
+        <key>Hour</key><integer>6</integer>
+        <key>Minute</key><integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>__ABSOLUTE_PATH_TO__/Analytics/JSM/logs/jsm-export-stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>__ABSOLUTE_PATH_TO__/Analytics/JSM/logs/jsm-export-stderr.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>

@@ -7,10 +7,10 @@ test:
 	python -m pytest tests/ -v
 
 lint:
-	ruff check src/ tests/
+	ruff check *.py tests/
 
 run:
-	python -m src
+	python -m jsm_export
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; rm -rf .pytest_cache

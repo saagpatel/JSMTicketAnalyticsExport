@@ -199,8 +199,13 @@ def _write_backfill(
         by_month[_month_from_date(row.created_date)].append(row)
 
     months = sorted(by_month.keys())
-    log.info("Backfill: %d tickets across %d months (%s → %s)",
-             len(rows), len(months), months[0] if months else "?", months[-1] if months else "?")
+    log.info(
+        "Backfill: %d tickets across %d months (%s → %s)",
+        len(rows),
+        len(months),
+        months[0] if months else "?",
+        months[-1] if months else "?",
+    )
 
     for month_label in months:
         month_rows = by_month[month_label]
@@ -227,7 +232,10 @@ def _write_backfill(
     duration = time.monotonic() - start_time
     log.info(
         "Backfill complete: %d tickets, %d months, %d errors, %.1fs elapsed.",
-        len(rows), len(months), len(errors), duration,
+        len(rows),
+        len(months),
+        len(errors),
+        duration,
     )
 
 
@@ -241,6 +249,15 @@ def main(argv: list[str] | None = None) -> None:
         format="%(asctime)s %(levelname)s %(name)s — %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
+
+    # -- Config validation ----------------------------------------------------
+    if not config.JIRA_INSTANCE or not config.PROJECT_KEY:
+        log.error(
+            "JSM_JIRA_INSTANCE and JSM_PROJECT_KEY must be set. Example: "
+            "export JSM_JIRA_INSTANCE=https://your-org.atlassian.net "
+            "JSM_PROJECT_KEY=SUPPORT",
+        )
+        sys.exit(2)
 
     start_time = time.monotonic()
 

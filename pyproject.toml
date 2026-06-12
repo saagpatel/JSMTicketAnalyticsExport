@@ -1,0 +1,68 @@
+[project]
+name = "jsm-ticket-analytics-export"
+version = "0.1.0"
+description = "Export Jira Service Management tickets past the native 1,000-row cap, to CSV + JSON."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Saag Patel" }]
+keywords = [
+    "jira",
+    "jira-service-management",
+    "jsm",
+    "itsm",
+    "export",
+    "csv",
+    "analytics",
+    "cli",
+    "rest-api",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Information Technology",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "requests>=2.33.0",
+    "keyring>=24.3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/saagpatel/JSMTicketAnalyticsExport"
+Repository = "https://github.com/saagpatel/JSMTicketAnalyticsExport"
+Issues = "https://github.com/saagpatel/JSMTicketAnalyticsExport/issues"
+Changelog = "https://github.com/saagpatel/JSMTicketAnalyticsExport/blob/main/CHANGELOG.md"
+
+[project.scripts]
+jsm-export = "jsm_export:main"
+jsm-export-setup = "setup_keychain:main"
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+# Flat module layout: ship exactly these top-level modules (no src/ package).
+py-modules = [
+    "jsm_export",
+    "config",
+    "jira_client",
+    "field_resolver",
+    "transformer",
+    "writer",
+    "models",
+    "all_time_appender",
+    "setup_keychain",
+]

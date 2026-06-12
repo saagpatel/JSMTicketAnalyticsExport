@@ -3,8 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from models import FieldMapping
 from transformer import transform
 
@@ -141,7 +139,7 @@ class TestTransformWithFieldMapping:
         assert self.row.division == "Finance"
 
     def test_manager_extracted(self):
-        assert self.row.manager == "Sam Patel"
+        assert self.row.manager == "Dana Kim"
 
 
 class TestTransformMissingFields:
