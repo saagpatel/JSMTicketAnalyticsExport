@@ -3,8 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from models import FieldMapping
 from transformer import transform
 

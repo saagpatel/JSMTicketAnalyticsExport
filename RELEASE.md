@@ -28,9 +28,7 @@ git grep -nE "/Users/|mise/installs" -- . ':(exclude)*.bak'
 The shipped artifacts are verified clean — scanning the built wheel and sdist
 for any internal hostname returns zero matches.
 
-> Note: `AGENTS.md` is owned by Codex and still references the internal host — it
-> is not part of the PyPI package, but clean it up in that lane before the repo
-> goes public.
+> Note: `AGENTS.md` is owned by Codex and is sanitized for public repo visibility.
 
 ---
 

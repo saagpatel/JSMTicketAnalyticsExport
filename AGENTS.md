@@ -6,7 +6,7 @@ Follow the global Codex communication contract. Keep updates short, PM-readable,
 
 ## Project Goal
 
-JSMTicketAnalyticsExport is a local Python CLI that exports Jira Service Management tickets from `servicedesk.inside-box.net`, bypasses the native export cap through paginated REST calls, and writes canonical CSV, JSON, and manifest outputs for analytics under `~/Analytics/JSM/`.
+JSMTicketAnalyticsExport is a local Python CLI that exports Jira Service Management tickets from a configured Jira Cloud instance, bypasses the native export cap through paginated REST calls, and writes canonical CSV, JSON, and manifest outputs for analytics under the configured output directory.
 
 ## First Read
 

@@ -3,8 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from all_time_appender import append_to_all_time
 from models import TicketRow
 

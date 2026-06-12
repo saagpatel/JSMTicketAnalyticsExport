@@ -2,9 +2,6 @@
 
 import csv
 import json
-from pathlib import Path
-
-import pytest
 
 from models import ExportManifest, TicketRow
 from writer import write_csv, write_json, write_manifest
