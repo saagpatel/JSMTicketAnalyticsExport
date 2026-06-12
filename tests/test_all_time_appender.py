@@ -3,8 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from all_time_appender import append_to_all_time
 from models import TicketRow
 
@@ -18,7 +16,7 @@ def _make_ticket(**overrides) -> TicketRow:
     defaults = dict(
         ticket_id="IT-0001",
         summary="Default summary",
-        url="https://servicedesk.inside-box.net/browse/IT-0001",
+        url="https://your-org.atlassian.net/browse/IT-0001",
         issue_type="Task",
         priority="Medium",
         labels=[],
@@ -51,7 +49,7 @@ class TestCreatesFileIfNotExists:
         out = tmp_path / "all-time.json"
         rows = [
             _make_ticket(ticket_id="IT-0001"),
-            _make_ticket(ticket_id="IT-0002", url="https://servicedesk.inside-box.net/browse/IT-0002"),
+            _make_ticket(ticket_id="IT-0002", url="https://your-org.atlassian.net/browse/IT-0002"),
         ]
 
         append_to_all_time(rows, out)
@@ -70,7 +68,7 @@ class TestAppendsWithoutDuplicates:
         # Seed with IT-0001 and IT-0002
         initial = [
             _make_ticket(ticket_id="IT-0001"),
-            _make_ticket(ticket_id="IT-0002", url="https://servicedesk.inside-box.net/browse/IT-0002"),
+            _make_ticket(ticket_id="IT-0002", url="https://your-org.atlassian.net/browse/IT-0002"),
         ]
         with out.open("w", encoding="utf-8") as fh:
             import dataclasses
@@ -79,8 +77,8 @@ class TestAppendsWithoutDuplicates:
         # Append IT-0002 (duplicate) + IT-0003 (new)
         append_to_all_time(
             [
-                _make_ticket(ticket_id="IT-0002", url="https://servicedesk.inside-box.net/browse/IT-0002"),
-                _make_ticket(ticket_id="IT-0003", url="https://servicedesk.inside-box.net/browse/IT-0003"),
+                _make_ticket(ticket_id="IT-0002", url="https://your-org.atlassian.net/browse/IT-0002"),
+                _make_ticket(ticket_id="IT-0003", url="https://your-org.atlassian.net/browse/IT-0003"),
             ],
             out,
         )
@@ -96,7 +94,7 @@ class TestIdempotentRerun:
         out = tmp_path / "all-time.json"
         rows = [
             _make_ticket(ticket_id="IT-0001"),
-            _make_ticket(ticket_id="IT-0002", url="https://servicedesk.inside-box.net/browse/IT-0002"),
+            _make_ticket(ticket_id="IT-0002", url="https://your-org.atlassian.net/browse/IT-0002"),
         ]
 
         append_to_all_time(rows, out)
@@ -113,10 +111,10 @@ class TestSortedByCreatedDate:
         out = tmp_path / "all-time.json"
         rows = [
             _make_ticket(ticket_id="IT-0003", created_date="2026-03-01T00:00:00.000+0000",
-                         url="https://servicedesk.inside-box.net/browse/IT-0003"),
+                         url="https://your-org.atlassian.net/browse/IT-0003"),
             _make_ticket(ticket_id="IT-0001", created_date="2026-01-01T00:00:00.000+0000"),
             _make_ticket(ticket_id="IT-0002", created_date="2026-02-01T00:00:00.000+0000",
-                         url="https://servicedesk.inside-box.net/browse/IT-0002"),
+                         url="https://your-org.atlassian.net/browse/IT-0002"),
         ]
 
         append_to_all_time(rows, out)

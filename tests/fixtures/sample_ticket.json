@@ -1,6 +1,6 @@
 {
 	"id": "10421",
-	"self": "https://servicedesk.inside-box.net/rest/api/3/issue/10421",
+	"self": "https://your-org.atlassian.net/rest/api/3/issue/10421",
 	"key": "IT-4821",
 	"fields": {
 		"summary": "Laptop replacement request — Finance team",
@@ -24,11 +24,11 @@
 		},
 		"assignee": {
 			"displayName": "Alex Rivera",
-			"emailAddress": "alex.rivera@inside-box.net"
+			"emailAddress": "alex.rivera@example.com"
 		},
 		"reporter": {
 			"displayName": "Jordan Chen",
-			"emailAddress": "jordan.chen@inside-box.net"
+			"emailAddress": "jordan.chen@example.com"
 		},
 		"created": "2026-02-03T09:14:22.000+0000",
 		"updated": "2026-02-10T16:45:33.000+0000",
@@ -37,7 +37,7 @@
 			"value": "Finance"
 		},
 		"customfield_10113": {
-			"displayName": "Sam Patel"
+			"displayName": "Dana Kim"
 		},
 		"customfield_10200": {
 			"completedCycles": [

@@ -51,7 +51,7 @@ def prompt_credentials() -> tuple[str, str]:
     Returns:
         (email, api_token) tuple with leading/trailing whitespace stripped.
     """
-    print(f"\nJSM Analytics — Credential Setup")
+    print("\nJSM Analytics — Credential Setup")
     print(f"Instance: {config.JIRA_INSTANCE}\n")
 
     email = input("Atlassian account email: ").strip()
