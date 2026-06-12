@@ -65,3 +65,20 @@ def test_field_type_extracted(mock_api_get):
 
     assert result["division"].field_type == "option"
     assert result["manager"].field_type == "user"
+
+
+@patch("field_resolver.api_get")
+def test_field_without_schema_key_falls_back_to_unknown_type(mock_api_get):
+    # The real Jira /rest/api/3/field endpoint omits the 'schema' key for
+    # some built-in fields (watchers, comment, votes). Resolver must not crash
+    # and must return field_type="unknown" so downstream code can handle it.
+    mock_api_get.return_value = [
+        {"id": "customfield_10199", "name": "Department"},
+        {"id": "customfield_10102", "name": "Division", "schema": {"type": "option"}},
+    ]
+
+    result = resolve_fields(["Department", "Division"])
+
+    assert result["department"].field_id == "customfield_10199"
+    assert result["department"].field_type == "unknown"
+    assert result["division"].field_type == "option"
