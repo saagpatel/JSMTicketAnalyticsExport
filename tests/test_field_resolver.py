@@ -65,3 +65,53 @@ def test_field_type_extracted(mock_api_get):
 
     assert result["division"].field_type == "option"
     assert result["manager"].field_type == "user"
+
+
+@patch("field_resolver.api_get")
+def test_full_mapping_contract(mock_api_get):
+    """Acceptance: FieldMapping carries exact field_id, canonical field_name, and field_type from API.
+
+    field_name must reflect what the API returned, not the caller's casing — this is what
+    populates ExportManifest.custom_fields_resolved and downstream column headers.
+    """
+    mock_api_get.return_value = _load_fields()
+
+    result = resolve_fields(["division", "manager"])
+
+    div = result["division"]
+    assert div.field_id == "customfield_10102"
+    assert div.field_name == "Division"  # canonical casing from API, not caller input
+    assert div.field_type == "option"
+
+    mgr = result["manager"]
+    assert mgr.field_id == "customfield_10113"
+    assert mgr.field_name == "Manager"
+    assert mgr.field_type == "user"
+
+
+@patch("field_resolver.api_get")
+def test_field_with_no_schema_key_defaults_to_unknown(mock_api_get):
+    """Edge: field without a schema key (some Jira system fields) resolves with field_type='unknown'."""
+    mock_api_get.return_value = [{"id": "customfield_99999", "name": "Orphaned"}]
+
+    result = resolve_fields(["Orphaned"])
+
+    assert result["orphaned"].field_id == "customfield_99999"
+    assert result["orphaned"].field_type == "unknown"
+
+
+@patch("field_resolver.api_get")
+def test_duplicate_field_names_last_occurrence_wins(mock_api_get):
+    """Edge: if the API returns two fields with the same name, the last one wins.
+
+    Atlassian can return duplicate display names when a custom field exists across multiple
+    JSM service projects. The resolver must not crash; it silently keeps the last entry.
+    """
+    mock_api_get.return_value = [
+        {"id": "customfield_00001", "name": "Division", "schema": {"type": "option"}},
+        {"id": "customfield_00002", "name": "Division", "schema": {"type": "option"}},
+    ]
+
+    result = resolve_fields(["Division"])
+
+    assert result["division"].field_id == "customfield_00002"
